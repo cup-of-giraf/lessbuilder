@@ -1,0 +1,8 @@
+{
+    "require": {
+        "leafo/lessphp": "dev-master",
+        "symfony/console": "2.2.x-dev",
+        "symfony/filesystem": "2.1.x-dev",
+        "symfony/process": "2.1.x-dev"
+    }
+}
