@@ -1,4 +1,7 @@
 {
+    "autoload": {
+        "psr-0": { "": "src/" }
+    },
     "require": {
         "leafo/lessphp": "dev-master",
         "symfony/console": "2.2.x-dev",
