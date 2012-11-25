@@ -52,13 +52,14 @@ Option `--watch` (or `-w`) enable the watcher to build automatically your .less 
 The watcher is based on check files every 2 seconds.
 You can change the interval time with `--watch-interval` (or `-i`) option.
 
-Future
-------
-
-- Keep the subpath for directories build using target
 
     $ ./less build -w ./web
 
 or
 
     $ ./less build -w -i3 ./web/css/main.less
+
+Future
+------
+
+- Keep the subpath for directories build using target
