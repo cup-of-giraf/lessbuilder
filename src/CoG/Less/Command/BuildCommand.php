@@ -7,10 +7,16 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Finder\Finder;
 
 class BuildCommand extends Command
 {
+    const LESS_EXTENSION = 'less';
+    const CSS_EXTENSION = 'css';
+
     protected $less;
+
+    protected $finder;
 
     protected $output;
 
@@ -22,6 +28,7 @@ class BuildCommand extends Command
             ->addArgument('source', InputArgument::REQUIRED, 'File or directory to build')
             ->addOption('target', 't', InputOption::VALUE_OPTIONAL, 'Output file or directory');
         $this->less = new \lessc();
+        $this->finder = new Finder();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -31,14 +38,19 @@ class BuildCommand extends Command
         $target = $input->getOption('target') != null ? new \SplFileInfo($input->getOption('target')) : null;
 
         if( $source->isDir() ) {
-            throw new \InvalidArgumentException('Directories are not yet supported');
+
+            return $this->compileDirectory( $source, $target );
         }
 
-        $this->compile( new \SplFileObject($source), $target);
+        return $this->compile( new \SplFileObject($source), $target);
 
     }
 
-    protected function compile( \SplFileObject $source, \SplFileInfo $target=null ) {
+    /**
+     * @param \SplFileInfo $source
+     * @param \SplFileInfo $target
+     */
+    protected function compile( \SplFileInfo $source, \SplFileInfo $target=null ) {
 
         $real_target = $this->getRealTarget($source, $target);
         $this->output->write(
@@ -53,11 +65,11 @@ class BuildCommand extends Command
     }
 
     /**
-    * @param \SplFileObject $source
-    * @param \SplFileObject $target
-    * @return \SplFileInfo|\SplFileObject
+     * @param \SplFileInfo|\SplFileObject $source
+     * @param \SplFileInfo|\SplFileObject $target
+     * @return \SplFileInfo|\SplFileObject
      */
-    protected function getRealTarget( \SplFileObject $source, \SplFileInfo $target=null ) {
+    protected function getRealTarget( \SplFileInfo $source, \SplFileInfo $target=null ) {
 
         if( $target == null ) {
             $dir = $source->getPath();
@@ -67,7 +79,29 @@ class BuildCommand extends Command
             $dir = $target->getPathname();
         }
 
-        return new \SplFileInfo( sprintf('%s/%scss', $dir,  $source->getBasename( $source->getExtension() )));
+        return new \SplFileInfo( sprintf(
+            '%s/%s%s',
+            $dir,
+            $source->getBasename( $source->getExtension() ),
+            self::CSS_EXTENSION
+        ));
+    }
+
+    /**
+     * @param \SplFileObject $source
+     * @param \SplFileInfo $target
+     * @return \InvalidArgumentException
+     */
+    protected function compileDirectory(\SplFileObject $source, \SplFileInfo $target=null) {
+        $this->finder
+            ->in( $source->getPathname() )
+            ->name(sprintf('*.%s',self::LESS_EXTENSION))
+            ->files();
+
+        foreach( $this->finder as $file ) {
+            $this->compile( $file, $target );
+        }
+
     }
 }
 

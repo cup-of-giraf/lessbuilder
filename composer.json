@@ -4,6 +4,7 @@
     },
     "require": {
         "leafo/lessphp": "dev-master",
-        "symfony/console": "2.2.x-dev"
+        "symfony/console": "2.2.x-dev",
+        "symfony/finder": "2.2.x-dev"
     }
 }
